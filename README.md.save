@@ -1,0 +1,51 @@
+# GlobalBlock-AP 🚀
+
+**GlobalBlock-API** is a powerful, decentralized API suite for Web3 & Web2 integrations, offering scalable, secure, and enterprise-grade services.
+
+## 🌟 Features
+- **Multi-Chain Support** (Ethereum, Solana, BSC, etc.)
+- **AI-Powered Insights & Automation**
+- **Secure Web3 Payments & Risk Scoring**
+- **Smart Contract & NFT Metadata Decoding**
+- **API Monetization & Subscription Plans**
+- **Web3/Web2 Seamless Integration**
+
+## 🛠️ Setup & Installation
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/GlobalBlockInc/GlobalBlock-API.git
+   cd GlobalBlock-API
+   ```
+
+2. **Install Dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Configure Environment Variables**
+   Create a `.env` file and add:
+   ```ini
+   STRIPE_SECRET_KEY=your_stripe_key
+   ALCHEMY_API_URL=your_alchemy_url
+   ENCRYPTION_KEY=your_encryption_key
+   ```
+
+4. **Run the API**
+   ```bash
+   python app.py  ```
+
+## 📖 Documentation
+Full API documentation is available [here](https://GlobalBlockInc.com/docs).
+
+## 🔒 Security & Licensing
+- Licensed under **Apache 2.0**.
+- All API requests require authentication tokens.
+
+## 🤝 Contributing
+Interested in contributing? Check out our [contribution guidelines](CONTRIBUTING.md).
+
+## 📩 Contact & Support
+- **Website**: [GlobalBlockInc.com](https://GlobalBlockInc.com)
+- **Support**: support@GlobalBlockInc.com
+git add README.mgit commit -m "Added README file"
+git push origin main

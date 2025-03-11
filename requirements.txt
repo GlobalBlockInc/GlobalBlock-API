@@ -1,0 +1,12 @@
+Flask
+Flask-Limiter
+Flask-Cors
+Flask-HTTPAuth
+Flask-SQLAlchemy
+Flask-SocketIO
+requests
+stripe
+web3
+python-dotenv
+cryptography
+gunicorn
