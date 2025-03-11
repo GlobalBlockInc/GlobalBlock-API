@@ -1,0 +1,22 @@
+---
+name: AI Debugging Assistant
+
+on: [push, pull_request]
+
+jobs:
+  ai_debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run AI Debugging with ChatGPT
+        run: |
+          curl -X POST "https://api.openai.com/v1/completions" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
+            -d '{
+              "model": "gpt-4",
+              "prompt": "Analyze the code in this repository and suggest improvements.",
+              "max_tokens": 300
+            }'
