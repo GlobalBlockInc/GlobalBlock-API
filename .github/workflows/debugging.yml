@@ -1,3 +1,4 @@
+---
 name: AI Debugging Assistant
 
 on: [push, pull_request]
@@ -5,12 +6,13 @@ on: [push, pull_request]
 jobs:
   debug:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: AI Debugging Bot
+      - name: Run AI Debugging
         uses: github/super-linter@v4
         env:
           VALIDATE_ALL_CODEBASE: true
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
