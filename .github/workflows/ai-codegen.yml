@@ -1,0 +1,36 @@
+---
+name: AI Code Generator
+
+on: [push, pull_request]
+
+jobs:
+  ai_generate_code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Generate Code with ChatGPT
+        run: |
+          RESPONSE=$(curl -s -X POST "https://api.openai.com/v1/completions" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
+            -d '{
+              "model": "gpt-4o-mini",
+              "prompt": "Write a secure Flask API with authentication for GlobalBlockAPI.",
+              "max_tokens": 500
+            }' | jq -r '.choices[0].text')
+
+          echo "ChatGPT Generated Code:"
+          echo "$RESPONSE"
+
+          # Save AI-generated code to a file
+          echo "$RESPONSE" > ai-generated.py
+
+      - name: Commit & Push AI Code
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add ai-generated.py
+          git commit -m "🤖 AI-Generated Code Update"
+          git push
