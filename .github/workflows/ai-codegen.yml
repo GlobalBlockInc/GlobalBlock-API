@@ -24,7 +24,7 @@ jobs:
           echo "ChatGPT Generated Code:"
           echo "$RESPONSE"
 
-          # Save AI-generated code to a file
+          # Save AI-generated code to a Python file
           echo "$RESPONSE" > ai-generated.py
 
       - name: Commit & Push AI Code
