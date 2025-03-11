@@ -1,3 +1,4 @@
+---
 name: AI Security Scanner
 
 on: [push, pull_request]
