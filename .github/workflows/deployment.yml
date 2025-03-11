@@ -9,5 +9,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Optimize Performance
-        uses: ko-build/setup-ko@v0.5 
+      - name: Install ko
+  run: |
+    curl -L https://github.com/ko-build/ko/releases/latest/download/ko-linux-amd64 -o /usr/local/bin/ko
+    chmod +x /usr/local/bin/ko
