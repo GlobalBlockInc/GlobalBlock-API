@@ -6,7 +6,7 @@ on:
       instruction:
         description: 'What code do you want to generate?'
         required: true
-        default: 'Generate basic API route'
+        default: 'Create Express route /status'
 
 jobs:
   generate:
@@ -15,16 +15,25 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Echo Instruction (Simulate AI)
+      - name: Generate Code with ChatGPT
         run: |
-          echo "Generating code for instruction: ${{ github.event.inputs.instruction }}"
-          echo "// Simulated AI-generated code based on: ${{ github.event.inputs.instruction }}" > generated_code.js
-          echo "console.log('This is auto-generated code for: ${{ github.event.inputs.instruction }}');" >> generated_code.js
+          echo "Calling ChatGPT API..."
+          RESPONSE=$(curl https://api.openai.com/v1/chat/completions \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
+            -d '{
+              "model": "gpt-3.5-turbo",
+              "messages": [{"role": "user", "content": "${{ github.event.inputs.instruction }}"}],
+              "temperature": 0.2
+            }' | jq -r '.choices[0].message.content')
+          
+          echo "$RESPONSE" > generated_code.js
+          echo "Generated code written to generated_code.js"
 
       - name: Commit Generated Code
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
           git add generated_code.js
-          git commit -m "Auto-generated code based on instruction"
+          git commit -m "Auto-generated real code using ChatGPT API"
           git push
