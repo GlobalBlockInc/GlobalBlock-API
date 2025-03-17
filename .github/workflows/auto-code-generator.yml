@@ -1,3 +1,13 @@
+name: AI Auto Code Generator
+
+on:
+  workflow_dispatch:
+    inputs:
+      instruction:
+        description: 'What code do you want to generate?'
+        required: true
+        default: 'Create Express route /status'
+
 jobs:
   generate:
     runs-on: ubuntu-latest
