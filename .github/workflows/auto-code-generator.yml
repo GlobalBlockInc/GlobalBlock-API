@@ -18,20 +18,24 @@ jobs:
       - name: Generate Code with ChatGPT
         run: |
           echo "Calling ChatGPT API..."
+
+          SAFE_INPUT=$(echo "${{ github.event.inputs.instruction }}" | jq -Rs .)
+
           curl https://api.openai.com/v1/chat/completions \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
-            -d '{
-              "model": "gpt-4o",
-              "messages": [{"role": "user", "content": "${{ github.event.inputs.instruction }}"}],
-              "temperature": 0.2
-            }' > response.json
+            -d "{
+        \"model\": \"gpt-3.5-turbo\",
+        \"messages\": [{\"role\": \"user\", \"content\": $SAFE_INPUT}],
+        \"temperature\": 0.2
+      }" > response.json
 
-          cat response.json
-          echo "Extracting response..."
-          cat response.json | grep -o '"content":.*' | cut -d':' -f2- | sed 's/^ "//;s/"$//' > generated_code.js
+    echo "===== RAW API RESPONSE ====="
+    cat response.json
 
-          echo "Generated code written to generated_code.js"
+    echo "Extracting code..."
+    cat response.json | grep -o '"content":.*' | cut -d':' -f2- | sed 's/^ "//;s/"$//' > generated_code.js
+    echo "Generated code written to generated_code.js"
           
       - name: Commit Generated Code
         run: |
