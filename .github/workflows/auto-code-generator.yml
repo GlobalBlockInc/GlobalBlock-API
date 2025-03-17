@@ -1,19 +1,12 @@
-name: AI Auto Code Generator
-
-on:
-  workflow_dispatch:
-    inputs:
-      instruction:
-        description: 'What code do you want to generate?'
-        required: true
-        default: 'Create Express route /status'
-
 jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Generate Code with ChatGPT
         run: |
@@ -26,7 +19,7 @@ jobs:
               "messages": [{"role": "user", "content": "${{ github.event.inputs.instruction }}"}],
               "temperature": 0.2
             }' | jq -r '.choices[0].message.content')
-          
+
           echo "$RESPONSE" > generated_code.js
           echo "Generated code written to generated_code.js"
 
