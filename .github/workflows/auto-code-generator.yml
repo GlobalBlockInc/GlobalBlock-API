@@ -25,18 +25,18 @@ jobs:
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
             -d "{
-        \"model\": \"gpt-3.5-turbo\",
-        \"messages\": [{\"role\": \"user\", \"content\": $SAFE_INPUT}],
-        \"temperature\": 0.2
-      }" > response.json
+              \"model\": \"gpt-3.5-turbo\",
+              \"messages\": [{\"role\": \"user\", \"content\": $SAFE_INPUT}],
+              \"temperature\": 0.2
+            }" > response.json
 
-    echo "===== RAW API RESPONSE ====="
-    cat response.json
+          echo "===== RAW API RESPONSE ====="
+          cat response.json
 
-    echo "Extracting code..."
-    cat response.json | grep -o '"content":.*' | cut -d':' -f2- | sed 's/^ "//;s/"$//' > generated_code.js
-    echo "Generated code written to generated_code.js"
-          
+          echo "Extracting code..."
+          cat response.json | grep -o '\"content\":.*' | cut -d':' -f2- | sed 's/^ \"//;s/\"$//' > generated_code.js
+          echo "Generated code written to generated_code.js"
+
       - name: Commit Generated Code
         run: |
           git config --global user.name "github-actions"
