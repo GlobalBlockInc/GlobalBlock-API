@@ -32,6 +32,10 @@ jobs:
 
           echo "===== RAW API RESPONSE ====="
           cat response.json
+      - name: Print Response
+        run: |
+          echo "===== FULL RAW API RESPONSE ====="
+          cat response.json
 
           echo "Extracting code..."
           cat response.json | grep -o '\"content\":.*' | cut -d':' -f2- | sed 's/^ \"//;s/\"$//' > generated_code.js
