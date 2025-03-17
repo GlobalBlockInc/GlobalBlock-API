@@ -1,0 +1,30 @@
+name: AI Auto Code Generator
+
+on:
+  workflow_dispatch:
+    inputs:
+      instruction:
+        description: 'What code do you want to generate?'
+        required: true
+        default: 'Generate basic API route'
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Echo Instruction (Simulate AI)
+        run: |
+          echo "Generating code for instruction: ${{ github.event.inputs.instruction }}"
+          echo "// Simulated AI-generated code based on: ${{ github.event.inputs.instruction }}" > generated_code.js
+          echo "console.log('This is auto-generated code for: ${{ github.event.inputs.instruction }}');" >> generated_code.js
+
+      - name: Commit Generated Code
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add generated_code.js
+          git commit -m "Auto-generated code based on instruction"
+          git push
