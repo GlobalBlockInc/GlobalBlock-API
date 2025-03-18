@@ -1,5 +1,8 @@
 name: AI Auto Code Generator
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
     inputs:
@@ -15,10 +18,12 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Generate Code with ChatGPT
         run: |
           echo "Calling ChatGPT API..."
-
           SAFE_INPUT=$(echo "${{ github.event.inputs.instruction }}" | jq -Rs .)
 
           curl https://api.openai.com/v1/chat/completions \
@@ -26,22 +31,22 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.OPENAI_API_KEY }}" \
             -d "{
               \"model\": \"gpt-3.5-turbo\",
-              \"messages\": [{\"role\": \"user\", \"content\": $SAFE_INPUT}],
+              \"messages\": [
+                {\"role\": \"user\", \"content\": $SAFE_INPUT}
+              ],
               \"temperature\": 0.2
             }" > response.json
 
-          echo "===== RAW API RESPONSE ====="
-          cat response.json
-      - name: Print Response
+      - name: Extract and Save Code
         run: |
           echo "===== FULL RAW API RESPONSE ====="
           cat response.json
 
-          echo "Extracting code..."
-          cat response.json | grep -o '\"content\":.*' | cut -d':' -f2- | sed 's/^ \"//;s/\"$//' > generated_code.js
+          echo "Extracting code with jq..."
+          cat response.json | jq -r '.choices[0].message.content' > generated_code.js
           echo "Generated code written to generated_code.js"
 
-      - name: Commit Generated Code
+      - name: Commit and Push Generated Code
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
