@@ -1,0 +1,74 @@
+name: HF Code Generator
+
+on:
+  workflow_dispatch:
+    inputs:
+      instruction:
+        description: "Enter the code generation instruction"
+        required: true
+        default: "Create an Express route for /status"
+      language:
+        description: "Choose language for the generated code (python, javascript, etc.)"
+        required: true
+        default: "javascript"
+
+permissions:
+  contents: write
+
+jobs:
+  generate-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Set File Name Based on Language
+        id: set_filename
+        run: |
+          if [ "${{ github.event.inputs.language }}" = "python" ]; then
+            echo "FILE_NAME=generated_code.py" >> $GITHUB_ENV
+          elif [ "${{ github.event.inputs.language }}" = "javascript" ]; then
+            echo "FILE_NAME=generated_code.js" >> $GITHUB_ENV
+          else
+            echo "FILE_NAME=generated_code.txt" >> $GITHUB_ENV
+          fi
+          echo "Using file name: $FILE_NAME"
+
+      - name: Generate Code with Hugging Face
+        run: |
+          echo "Calling Hugging Face GPT-Neo..."
+          # Convert the instruction to a JSON-safe string
+          SAFE_INPUT=$(echo "${{ github.event.inputs.instruction }}" | jq -Rs .)
+          # Call the Hugging Face Inference API (using GPT-Neo 125M as an example)
+          curl https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-125M \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.HF_API_KEY }}" \
+            -d "{
+              \"inputs\": $SAFE_INPUT,
+              \"parameters\": {\"max_new_tokens\": 150}
+            }" > response.json
+          echo "===== RAW API RESPONSE ====="
+          cat response.json
+
+      - name: Extract and Save Generated Code
+        run: |
+          echo "Extracting generated code..."
+          # Extract the generated text and save it to the file determined earlier
+          cat response.json | jq -r '.[0].generated_text' > $FILE_NAME
+          echo "Generated code has been saved to $FILE_NAME"
+
+      - name: Commit and Push (if changes exist)
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add $FILE_NAME
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "Auto-generated code using Hugging Face GPT-Neo in ${{ github.event.inputs.language }}"
+            git push
+            echo "Changes were committed and pushed."
+          else
+            echo "No changes to commit."
+          fi
