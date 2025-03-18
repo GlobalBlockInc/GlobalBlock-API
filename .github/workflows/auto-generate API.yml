@@ -12,18 +12,20 @@ jobs:
       
       - name: Create API Server File
         run: |
-          echo "// Auto-generated API Server Skeleton for GlobalBlockInc" > api.js
-          echo "const express = require('express');" >> api.js
-          echo "const app = express();" >> api.js
-          echo "const port = 4000;" >> api.js
-          echo "" >> api.js
-          echo "app.get('/status', (req, res) => {" >> api.js
-          echo "  res.send('GlobalBlock API Server is running!');" >> api.js
-          echo "});" >> api.js
-          echo "" >> api.js
-          echo "app.listen(port, () => {" >> api.js
-          echo "  console.log(\`GlobalBlock API listening on port \${port}\`);" >> api.js
-          echo "});" >> api.js
+          cat << 'EOF' > api.js
+          // Auto-generated API Server Skeleton for GlobalBlockInc
+          const express = require('express');
+          const app = express();
+          const port = 4000;
+          
+          app.get('/status', (req, res) => {
+            res.send('GlobalBlock API Server is running!');
+          });
+          
+          app.listen(port, () => {
+            console.log(`GlobalBlock API listening on port ${port}`);
+          });
+          EOF
       
       - name: Commit Generated Code
         run: |
