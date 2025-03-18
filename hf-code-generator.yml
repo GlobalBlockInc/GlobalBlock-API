@@ -1,0 +1,68 @@
+name: HF Code Generator
+
+on:
+  workflow_dispatch:
+    inputs:
+      instruction:
+        description: "Enter the code generation instruction"
+        required: true
+        default: "Create an Express route for /status"
+
+permissions:
+  contents: write
+
+jobs:
+  generate-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Generate Code with Hugging Face
+        run: |
+          echo "Calling Hugging Face GPT-Neo..."
+
+          # Convert the instruction to JSON-safe string
+          SAFE_INPUT=$(echo "${{ github.event.inputs.instruction }}" | jq -Rs .)
+
+          # Call the Hugging Face Inference API
+          # Using a smaller model: EleutherAI/gpt-neo-125M
+          # You can pick a different one if you like.
+          curl https://api-inference.huggingface.co/models/EleutherAI/gpt-neo-125M \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.HF_API_KEY }}" \
+            -d "{
+              \"inputs\": $SAFE_INPUT,
+              \"parameters\": {\"max_new_tokens\": 150}
+            }" > response.json
+
+          echo "===== RAW API RESPONSE ====="
+          cat response.json
+
+      - name: Extract and Save Generated Code
+        run: |
+          echo "Extracting generated code..."
+
+          # For GPT-Neo, the response is usually an array of objects with 'generated_text'
+          # Example: [{ "generated_text": "..."}]
+          cat response.json | jq -r '.[0].generated_text' > generated_code.js
+
+          echo "Generated code has been saved to generated_code.js"
+
+      - name: Commit and Push (if changes exist)
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add generated_code.js
+
+          # Only commit/push if there's something new
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "Auto-generated code using Hugging Face GPT-Neo"
+            git push
+            echo "Changes were committed and pushed."
+          else
+            echo "No changes to commit."
+          fi
