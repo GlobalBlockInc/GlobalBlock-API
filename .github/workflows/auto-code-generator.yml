@@ -46,10 +46,23 @@ jobs:
           cat response.json | jq -r '.choices[0].message.content' > generated_code.js
           echo "Generated code written to generated_code.js"
 
-      - name: Commit and Push Generated Code
+          - name: Commit and Push
+          run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add api.js
+
+      - name: Commit and Push
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "actions@github.com"
-          git add generated_code.js
-          git commit --allow-empty -m "Auto-generated real code using ChatGPT API"
-          git push
+          git add api.js
+
+          # Check if there's anything to commit
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "Auto-generate API Server skeleton"
+            git push
+            echo "Changes were committed and pushed."
+          else
+            echo "No changes to commit."
+          fi
